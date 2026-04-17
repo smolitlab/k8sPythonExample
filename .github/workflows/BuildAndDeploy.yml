@@ -3,7 +3,7 @@ name: Build and Push
 
 env:
   DOCKER_IMAGE_NAME: smolit-hello
-  DOCKER_REGISTRY: index.docker.io/v1/
+  DOCKER_REGISTRY: smolit
 
 # Controls when the workflow will run
 on:
@@ -34,7 +34,7 @@ jobs:
       - name: Login to Docker Registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.DOCKER_REGISTRY }}
+          registry: index.docker.io/v1/
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
       
