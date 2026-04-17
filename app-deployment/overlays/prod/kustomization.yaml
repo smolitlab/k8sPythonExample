@@ -1,0 +1,12 @@
+resources:
+- ../../base
+- namespace.yaml
+
+namespace: prod
+
+patches:
+- path: replicas.yaml
+
+configMapGenerator:
+  - name: webapp-configmap
+    env: env.properties

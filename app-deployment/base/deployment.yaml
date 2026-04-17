@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: hello
+  template:
+    metadata:
+      labels:
+        app: hello
+    spec:
+      containers:
+      - name: hello
+        image: smolit/smolit-hello:latest
+        ports:
+          - containerPort: 5001
+        imagePullPolicy: Always
+        resources:
+          limits:
+            cpu: 100m
+            memory: 256Mi
+          requests:
+            cpu: 50m
+            memory: 128Mi
+        envFrom:
+        - configMapRef:
+            name: webapp-configmap
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 5001
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 2
+          failureThreshold: 3
+        readinessProbe:
+          tcpSocket:
+            port: 5001
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 2
+          failureThreshold: 3

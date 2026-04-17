@@ -1,0 +1,15 @@
+resources:
+  - deployment.yaml
+  - service.yaml
+  - ingress.yaml
+
+commonLabels:
+  app: webapp-v2
+
+namespace: webapp
+
+commonAnnotations:
+  owner: smolit
+
+namePrefix: webapp-
+nameSuffix: -v2

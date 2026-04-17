@@ -1,0 +1,17 @@
+<!doctype html>
+<html>
+    <head>
+        <title>{{ title }}</title>
+    </head>
+    <body style="{{color|safe}}">
+        <center>
+            <p>{{ title }}</p>
+            <p>Request Date and Time: <span id='date-time'></span></p>
+            <p>Hostname {{ hostname }}</p>
+        </center>
+        <script>
+            var dateAndTime = new Date();
+            document.getElementById('date-time').innerHTML = dateAndTime.toLocaleString();
+        </script>
+    </body>
+</html>
