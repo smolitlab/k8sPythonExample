@@ -1,0 +1,6 @@
+[env]
+# Set environment variables for your project
+
+[tools]
+kubectl = "latest"
+helm = "latest"
