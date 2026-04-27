@@ -51,4 +51,51 @@ jobs:
           tags: |
             ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}:${{ steps.get_version.outputs.VERSION }}
             ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}:latest
+  
+  deploy:
+    needs: build
+    runs-on: self-hosted
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+
+      # Install mise for managing tools
+      - name: Install mise
+        run: |
+          curl https://mise.jdx.dev/install.sh | sh
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      # Install tools defined in .mise.toml
+      - name: Install tools with mise
+        run: |
+          echo "=== Running mise install ==="
+          $HOME/.local/bin/mise install -v
+          echo ""
+          echo "=== Installed tools ==="
+          $HOME/.local/bin/mise ls --installed
+          echo ""
+          echo "=== Checking for kubectl and helm in shims ==="
+          ls -la $HOME/.local/bin/k* $HOME/.local/bin/h* 2>&1 || true
           
+          # Get the actual paths where mise installed the tools
+          KUBECTL_PATH=$($HOME/.local/bin/mise which kubectl)
+          HELM_PATH=$($HOME/.local/bin/mise which helm)
+
+          # Extract the directories
+          KUBECTL_DIR=$(dirname "$KUBECTL_PATH")
+          HELM_DIR=$(dirname "$HELM_PATH")
+
+          # Add both to PATH for subsequent steps
+          echo "$KUBECTL_DIR:$HELM_DIR" >> $GITHUB_PATH
+
+      # Runs a set of commands using the runners shell
+      - name: Set the Kubernetes context
+        uses: azure/k8s-set-context@v4
+        with:
+          method: service-account
+          k8s-url: ${{ secrets.KUBERNETES_URL }}
+          k8s-secret: ${{ secrets.KUBERNETES_SECRET }}
+
+      - name: Deploy to the Kubernetes cluster
+        run: |
+          kubectl apply -k app-deployment/overlays/dev
